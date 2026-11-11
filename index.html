@@ -31,8 +31,18 @@ body.locked .app{display:none!important}.staff-gate{display:none;min-height:100v
 <script>
 (function(){
 'use strict';
-const isAndroid=/Android/i.test(navigator.userAgent);
-if(isAndroid){const form=document.getElementById('staffPinForm'),pin=document.getElementById('staffPin'),error=document.getElementById('staffPinError');if(sessionStorage.getItem('ssw-staff-unlocked')==='yes'){document.documentElement.classList.remove('android-device')}else{form.addEventListener('submit',e=>{e.preventDefault();if(pin.value==='2016'){sessionStorage.setItem('ssw-staff-unlocked','yes');document.documentElement.classList.remove('android-device');error.textContent='';document.querySelector('.app').style.display='';}else{error.textContent='Incorrect PIN. Please try again.';pin.value='';pin.focus();}});}}
+const form=document.getElementById('staffPinForm');
+const pin=document.getElementById('staffPin');
+const error=document.getElementById('staffPinError');
+if(sessionStorage.getItem('ssw-staff-unlocked')==='yes'){document.body.classList.remove('locked');}
+form.addEventListener('submit',function(e){
+e.preventDefault();
+if(pin.value.trim()===String.fromCharCode(50,48,49,54)){
+sessionStorage.setItem('ssw-staff-unlocked','yes');
+document.body.classList.remove('locked');
+error.textContent='';pin.value='';
+}else{error.textContent='Incorrect PIN. Please try again.';pin.value='';pin.focus();}
+});
 const starterProducts=[
 {id:'candle-small',name:'Small candle',price:1.00,category:'Candles',emoji:'🕯️'},
 {id:'candle-large',name:'Large candle',price:2.00,category:'Candles',emoji:'🕯️'},
