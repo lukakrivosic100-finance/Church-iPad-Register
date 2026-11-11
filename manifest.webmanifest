@@ -8,5 +8,13 @@
   "display": "standalone",
   "orientation": "any",
   "background_color": "#102c24",
-  "theme_color": "#102c24"
+  "theme_color": "#102c24",
+  "icons": [
+    {
+      "src": "./icons/st-sava-register.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
 }
