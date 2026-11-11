@@ -1,0 +1,12 @@
+{
+  "id": "./",
+  "name": "St Sava Church Register",
+  "short_name": "Church Register",
+  "description": "St Sava Church West Ealing staff sales register",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#102c24",
+  "theme_color": "#102c24"
+}
