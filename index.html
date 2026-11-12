@@ -10,9 +10,21 @@
 body.locked .app{display:none!important}.staff-gate{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px;background:var(--bg)}body.locked .staff-gate{display:flex}.staff-card{width:min(420px,100%);padding:28px;background:var(--panel);border:1px solid var(--line);border-radius:20px;text-align:center}.staff-card .mark{margin:0 auto 16px}.staff-card h1{margin:0 0 8px;font-size:1.5rem}.staff-card p{color:var(--muted);line-height:1.5}.staff-card input{width:100%;margin:12px 0;padding:15px;border-radius:12px;border:1px solid var(--line);background:#0d271e;color:var(--cream);font-size:1.5rem;text-align:center;letter-spacing:.35em}.staff-card button{width:100%;min-height:52px;border:0;border-radius:12px;background:var(--gold);color:#1c3025;font-weight:850}.staff-error{min-height:24px;color:var(--red);margin-top:10px}
 </style>
 </head>
-<body class="locked"><section class="staff-gate" id="staffGate" aria-labelledby="staffGateTitle"><div class="staff-card"><div class="mark" aria-hidden="true">☦</div><h1 id="staffGateTitle">Staff Access</h1><p>Enter the staff PIN to open the St Sava Church register.</p><form id="staffPinForm"><label for="staffUsername" class="muted">Staff username</label><input id="staffUsername" type="text" value="headadmin" autocomplete="username" autocapitalize="none" spellcheck="false" required style="letter-spacing:normal;font-size:1rem"><label for="staffPin" class="muted">Head Admin PIN</label><input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" aria-label="Four digit staff PIN" required><button type="submit">Sign in</button></form><div class="staff-error" id="staffPinError" role="alert" aria-live="polite"></div></div></section><div class="app">
-<header><div class="brand"><div class="mark" aria-hidden="true">☦</div><div><h1>St Sava Church West Ealing</h1><p>Product sales register · iPad till</p></div></div><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap"><button class="btn secondary" id="staffAccessBtn" type="button" style="min-height:42px">Staff Access</button><button class="btn secondary" id="logoutBtn" type="button" style="min-height:42px">Sign out</button><div class="pill" id="syncBadge">CONNECTING TO SHARED REGISTER</div></div></header>
-<section class="panel" id="staffDashboard" hidden style="margin-bottom:18px"><div class="cart-head"><div><h2>Staff Access</h2><p class="intro" style="margin:4px 0 0">Sales activity by day and device. No money totals are shown here.</p></div><button class="btn secondary" id="refreshDashboardBtn" type="button">Refresh</button></div><div id="staffDashboardContent" class="history-list"></div></section><div class="layout">
+<body class="locked"><section class="staff-gate" id="staffGate" aria-labelledby="staffGateTitle"><div class="staff-card"><div class="mark" aria-hidden="true">☦</div><h1 id="staffGateTitle">Staff Access</h1><p>Enter the staff PIN to open the St Sava Church register.</p><form id="staffPinForm"><label for="staffUsername" class="muted">Staff username</label><input id="staffUsername" type="text" value="headadmin" autocomplete="username" autocapitalize="none" spellcheck="false" required style="letter-spacing:normal;font-size:1rem"><label for="staffPin" class="muted">Staff PIN</label><input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" aria-label="Four digit staff PIN" required><button type="submit">Sign in</button></form><div class="staff-error" id="staffPinError" role="alert" aria-live="polite"></div></div></section><div class="app">
+<header><div class="brand"><div class="mark" aria-hidden="true">☦</div><div><h1>St Sava Church West Ealing</h1><p>Product sales register · iPad till</p></div></div><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap"><button class="btn secondary" id="staffAccessBtn" type="button" style="min-height:42px">Staff Access</button><button class="btn secondary" id="manageStaffBtn" type="button" style="min-height:42px" hidden>Manage Staff</button><button class="btn secondary" id="logoutBtn" type="button" style="min-height:42px">Sign out</button><div class="pill" id="syncBadge">CONNECTING TO SHARED REGISTER</div></div></header>
+<section class="panel" id="staffDashboard" hidden style="margin-bottom:18px"><div class="cart-head"><div><h2>Staff Access</h2><p class="intro" style="margin:4px 0 0">Sales activity by day and device. No money totals are shown here.</p></div><button class="btn secondary" id="refreshDashboardBtn" type="button">Refresh</button></div><div id="staffDashboardContent" class="history-list"></div></section>
+<section class="panel" id="staffManagement" hidden style="margin-bottom:18px">
+ <div class="cart-head"><div><h2>Staff account management</h2><p class="intro" style="margin:4px 0 0">Head Admin only. View accounts and create new staff sign-ins. PINs are never displayed.</p></div><button class="btn secondary" id="refreshStaffBtn" type="button">Refresh accounts</button></div>
+ <form id="createStaffForm" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px;align-items:end;margin:12px 0 18px">
+  <label>Display name<input id="newStaffName" type="text" maxlength="80" required placeholder="e.g. Maria" style="display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d271e;color:var(--cream)"></label>
+  <label>Username<input id="newStaffUsername" type="text" minlength="3" maxlength="32" pattern="[a-z][a-z0-9._-]{2,31}" required autocomplete="off" placeholder="e.g. maria" style="display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d271e;color:var(--cream)"></label>
+  <label>Four-digit PIN<input id="newStaffPin" type="password" inputmode="numeric" pattern="[0-9]{4}" maxlength="4" required autocomplete="new-password" placeholder="4 digits" style="display:block;width:100%;margin-top:6px;padding:12px;border:1px solid var(--line);border-radius:10px;background:#0d271e;color:var(--cream)"></label>
+  <button class="btn" id="createStaffSubmit" type="submit">Create staff account</button>
+ </form>
+ <p id="staffManagementStatus" class="status" role="status" aria-live="polite"></p>
+ <div id="staffAccountsList" class="history-list"></div>
+</section>
+<div class="layout">
 <section class="panel"><h2>Products</h2><p class="intro">Tap a product to add it to the basket. Manage your church product list and prices below.</p>
 <div class="category-row" id="categories"><button class="category active" data-category="All">All products</button><button class="category" data-category="Candles">Candles</button><button class="category" data-category="Books & icons">Books & icons</button><button class="category" data-category="Other">Other</button></div>
 <div class="products" id="products"></div>
@@ -49,7 +61,7 @@ async function post(url,body,token){
  return data;
 }
 function lockRegister(message){
- sessionToken='';sessionStorage.removeItem(tokenKey);document.body.classList.add('locked');
+ sessionToken='';currentStaff=null;sessionStorage.removeItem(tokenKey);document.body.classList.add('locked');document.getElementById('manageStaffBtn').hidden=true;document.getElementById('staffManagement').hidden=true;
  if(message)error.textContent=message;
 }
 function unlockRegister(staff){
@@ -57,7 +69,7 @@ function unlockRegister(staff){
 }
 form.addEventListener('submit',async function(e){
  e.preventDefault();const u=username.value.trim().toLowerCase(),p=pin.value.trim();
- if(!/^headadmin$/.test(u)||!/^\d{4}$/.test(p)){error.textContent='Enter the Head Admin username and four-digit PIN.';return}
+ if(!/^[a-z][a-z0-9._-]{2,31}$/.test(u)||!/^[0-9]{4}$/.test(p)){error.textContent='Enter your staff username and four-digit PIN.';return}
  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Signing in…';
  try{const data=await post(STAFF_API,{action:'login',username:u,pin:p});sessionToken=data.sessionToken;sessionStorage.setItem(tokenKey,sessionToken);unlockRegister(data.staff);pin.value='';await initialiseSharedRegister();}
  catch(err){error.textContent=err.message||'Sign-in failed. Please try again.';pin.value='';pin.focus();}
@@ -81,11 +93,11 @@ function uuid(){return (crypto.randomUUID?crypto.randomUUID():('xxxxxxxx-xxxx-4x
 let deviceId=localStorage.getItem(DEVICE_ID_KEY);if(!deviceId){deviceId=uuid();localStorage.setItem(DEVICE_ID_KEY,deviceId)}
 const deviceLabel=/Android/i.test(navigator.userAgent)?'Android':(/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))?'iPad':'Browser';
 const deviceKey=deviceLabel+'|'+deviceId;
-let sharedSales=[],pendingSale=null;
+let sharedSales=[],pendingSale=null,staffAccounts=[];
 async function registerPost(body){return post(REGISTER_API,body,sessionToken)}
 async function initialiseSharedRegister(){
  $('syncBadge').textContent='SYNCING…';
- try{let data=await registerPost({action:'snapshot'});let remoteProducts=data.products||[];if(!remoteProducts.length&&products.length){for(const p of products)await registerPost({action:'save_product',product:p});data=await registerPost({action:'snapshot'});remoteProducts=data.products||[];}products=remoteProducts.map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();
+ try{let data=await registerPost({action:'snapshot'});let remoteProducts=data.products||[];if(!remoteProducts.length&&products.length){for(const p of products)await registerPost({action:'save_product',product:p});data=await registerPost({action:'snapshot'});remoteProducts=data.products||[];}products=remoteProducts.map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();await refreshStaffAccounts(false);
 renderProducts();renderCart();renderDashboard();$('syncBadge').textContent='SHARED · '+deviceLabel;$('syncBadge').style.color='var(--green)';}
  catch(err){$('syncBadge').textContent='SYNC ERROR';$('syncBadge').style.color='var(--red)';setStatus('Shared register could not sync: '+err.message+' · Do not record a sale until connection is restored.','error');if(/session|sign in|expired/i.test(err.message))lockRegister('Your staff session expired. Please sign in again.');throw err;}
 }
@@ -136,6 +148,47 @@ function renderDashboard(){
  const heading=document.createElement('h3');heading.textContent='Individual sales';host.appendChild(heading);
  rows.forEach(s=>{const card=document.createElement('div');card.className='history-item';card.style.display='block';const d=new Date(s.created_at);const device=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const top=document.createElement('strong');top.textContent=d.toLocaleString()+' · '+device;const detail=document.createElement('small');detail.textContent=(s.lines||[]).map(l=>(l.qty||1)+' × '+l.name).join(' · ');detail.style.whiteSpace='normal';card.append(top,detail);host.appendChild(card);});
 }
+async function refreshStaffAccounts(showStatus=true){
+ const button=$('manageStaffBtn'),panel=$('staffManagement');
+ try{
+  const data=await post(STAFF_API,{action:'list_staff'},sessionToken);
+  staffAccounts=data.staff||[];button.hidden=false;renderStaffAccounts();
+  if(showStatus)$('staffManagementStatus').textContent='Staff accounts refreshed.';
+  return true;
+ }catch(err){
+  staffAccounts=[];button.hidden=true;panel.hidden=true;
+  if(showStatus)$('staffManagementStatus').textContent=err.message;
+  return false;
+ }
+}
+function renderStaffAccounts(){
+ const host=$('staffAccountsList');if(!host)return;host.innerHTML='';
+ if(!staffAccounts.length){host.textContent='No staff accounts found.';return}
+ staffAccounts.forEach(account=>{
+  const item=document.createElement('div');item.className='history-item';item.style.display='block';
+  const title=document.createElement('strong');title.textContent=(account.display_name||account.username)+' · '+account.username;
+  const details=document.createElement('small');details.textContent=(account.role==='admin'?'Head Admin':'Staff')+' · '+(account.is_active?'Active':'Inactive')+(account.created_at?' · Created '+new Date(account.created_at).toLocaleDateString():'');
+  item.append(title,details);host.appendChild(item);
+ });
+}
+$('manageStaffBtn').addEventListener('click',()=>{
+ const panel=$('staffManagement');panel.hidden=!panel.hidden;
+ if(!panel.hidden){panel.scrollIntoView({behavior:'smooth',block:'start'});refreshStaffAccounts(false);}
+});
+$('refreshStaffBtn').addEventListener('click',()=>refreshStaffAccounts(true));
+$('createStaffForm').addEventListener('submit',async e=>{
+ e.preventDefault();
+ const displayName=$('newStaffName').value.trim(),newUsername=$('newStaffUsername').value.trim().toLowerCase(),newPin=$('newStaffPin').value.trim(),submit=$('createStaffSubmit'),status=$('staffManagementStatus');
+ if(!/^[a-z][a-z0-9._-]{2,31}$/.test(newUsername)||!/^[0-9]{4}$/.test(newPin)||!displayName){status.textContent='Enter a display name, valid username and four-digit PIN.';return;}
+ submit.disabled=true;submit.textContent='Creating…';status.textContent='';
+ try{
+  await post(STAFF_API,{action:'create_staff',username:newUsername,displayName,pin:newPin},sessionToken);
+  $('createStaffForm').reset();status.textContent='Staff account created successfully.';
+  await refreshStaffAccounts(false);
+ }catch(err){status.textContent=err.message||'Could not create staff account.';}
+ finally{submit.disabled=false;submit.textContent='Create staff account';}
+});
+
 $('staffAccessBtn').addEventListener('click',()=>{const panel=$('staffDashboard');panel.hidden=!panel.hidden;if(!panel.hidden){renderDashboard();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
 $('refreshDashboardBtn').addEventListener('click',()=>initialiseSharedRegister().catch(()=>{}));
 $('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your Head Admin details to continue.');});
