@@ -57,7 +57,7 @@ function unlockRegister(staff){
 }
 form.addEventListener('submit',async function(e){
  e.preventDefault();const u=username.value.trim().toLowerCase(),p=pin.value.trim();
- if(!/^headadmin$/.test(u)||!/^\\d{4}$/.test(p)){error.textContent='Enter the Head Admin username and four-digit PIN.';return}
+ if(!/^headadmin$/.test(u)||!/^\d{4}$/.test(p)){error.textContent='Enter the Head Admin username and four-digit PIN.';return}
  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Signing in…';
  try{const data=await post(STAFF_API,{action:'login',username:u,pin:p});sessionToken=data.sessionToken;sessionStorage.setItem(tokenKey,sessionToken);unlockRegister(data.staff);pin.value='';await initialiseSharedRegister();}
  catch(err){error.textContent=err.message||'Sign-in failed. Please try again.';pin.value='';pin.focus();}
