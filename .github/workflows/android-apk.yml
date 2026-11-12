@@ -1,4 +1,4 @@
-name: Build Church Register Android APK
+name: Build St Sava Church Register Android APK
 on:
   workflow_dispatch:
   push:
