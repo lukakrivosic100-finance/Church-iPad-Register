@@ -54,8 +54,8 @@ let sessionToken=sessionStorage.getItem(tokenKey)||'';
 let currentStaff=null;
 async function post(url,body,token){
  const headers={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
- if(token)headers['x-staff-session']=token;
- const response=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});
+ const payload=token?Object.assign({},body,{sessionToken:token}):body;
+ const response=await fetch(url,{method:'POST',headers,body:JSON.stringify(payload)});
  let data={};try{data=await response.json()}catch(e){}
  if(!response.ok||data.ok===false)throw new Error(data.error||'Request failed ('+response.status+').');
  return data;
