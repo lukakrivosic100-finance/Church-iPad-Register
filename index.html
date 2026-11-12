@@ -86,21 +86,7 @@ async function registerPost(body){return post(REGISTER_API,body,sessionToken)}
 async function initialiseSharedRegister(){
  $('syncBadge').textContent='SYNCING…';
  try{let data=await registerPost({action:'snapshot'});let remoteProducts=data.products||[];if(!remoteProducts.length&&products.length){for(const p of products)await registerPost({action:'save_product',product:p});data=await registerPost({action:'snapshot'});remoteProducts=data.products||[];}products=remoteProducts.map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();
-function renderDashboard(){
- const host=$('staffDashboardContent');if(!host)return;host.innerHTML='';
- const rows=sharedSales.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
- if(!rows.length){host.textContent='No shared sales recorded yet.';return}
- const groups={};rows.forEach(s=>{const d=new Date(s.created_at),day=d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),dev=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const key=day+'||'+dev;if(!groups[key])groups[key]={day,dev,count:0};groups[key].count++;});
- const summary=document.createElement('div');summary.className='notice';summary.innerHTML='<strong>Sales by day and device</strong>';
- Object.values(groups).forEach(g=>{const line=document.createElement('div');line.style.marginTop='7px';line.textContent=g.day+' · '+g.dev+' · '+g.count+' sale'+(g.count===1?'':'s');summary.appendChild(line)});
- host.appendChild(summary);
- const heading=document.createElement('h3');heading.textContent='Individual sales';host.appendChild(heading);
- rows.forEach(s=>{const card=document.createElement('div');card.className='history-item';card.style.display='block';const d=new Date(s.created_at);const device=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const top=document.createElement('strong');top.textContent=d.toLocaleString()+' · '+device;const detail=document.createElement('small');detail.textContent=(s.lines||[]).map(l=>(l.qty||1)+' × '+l.name).join(' · ');detail.style.whiteSpace='normal';card.append(top,detail);host.appendChild(card);});
-}
-$('staffAccessBtn').addEventListener('click',()=>{const panel=$('staffDashboard');panel.hidden=!panel.hidden;if(!panel.hidden){renderDashboard();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
-$('refreshDashboardBtn').addEventListener('click',()=>initialiseSharedRegister().catch(()=>{}));
-$('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your Head Admin details to continue.');});
-\nrenderProducts();renderCart();renderDashboard();$('syncBadge').textContent='SHARED · '+deviceLabel;$('syncBadge').style.color='var(--green)';}
+renderProducts();renderCart();renderDashboard();$('syncBadge').textContent='SHARED · '+deviceLabel;$('syncBadge').style.color='var(--green)';}
  catch(err){$('syncBadge').textContent='SYNC ERROR';$('syncBadge').style.color='var(--red)';setStatus('Shared register could not sync: '+err.message+' · Do not record a sale until connection is restored.','error');if(/session|sign in|expired/i.test(err.message))lockRegister('Your staff session expired. Please sign in again.');throw err;}
 }
 
@@ -138,6 +124,22 @@ $('cashReceived').addEventListener('input',updateChange);$('cancelCash').addEven
 $('confirmCash').addEventListener('click',async()=>{if(!cart.length)return;updateChange();if($('confirmCash').disabled)return;const due=saleTotal(),received=Math.round(Number($('cashReceived').value)*100)/100,change=Math.round((received-due)*100)/100;const lines=cart.map(l=>{const p=l.custom?l:products.find(x=>x.id===l.id);return {name:p.name,price:p.price,qty:l.qty}});const sale={id:pendingSale?pendingSale.id:'SSW-'+uuid(),at:pendingSale?pendingSale.at:new Date().toISOString(),method:'Cash',total:due,cashReceived:received,change,lines,device_id:deviceKey};pendingSale=sale;$('confirmCash').disabled=true;$('confirmCash').textContent='Saving sale…';try{await registerPost({action:'record_sale',sale:{id:sale.id,total:due,cash_received:received,change,lines,device_id:deviceKey}});}catch(err){setStatus('Sale could not be confirmed by the shared register: '+err.message+'. Keep this basket open and retry; it will use the same sale reference.','error');return;}finally{$('confirmCash').disabled=false;$('confirmCash').textContent='Confirm cash sale';}pendingSale=null;sales.unshift(sale);sales=sales.slice(0,500);save();closeCash();cart=[];renderCart();try{await initialiseSharedRegister();setStatus('Cash sale saved to the shared register · '+sale.id,'good');}catch(err){setStatus('Sale was saved. The dashboard could not refresh just now; use Staff Access → Refresh.','good');}});
 $('exportBtn').addEventListener('click',()=>{if(!sales.length){setStatus('No recorded sales to export yet.');return}const esc=v=>'"'+String(v).replace(/"/g,'""')+'"';const rows=[['Sale ID','Date/time','Payment method','Total GBP','Cash received GBP','Change GBP','Items'],...sales.map(s=>[s.id,s.at,s.method,s.total,s.cashReceived??'',s.change??'',s.lines.map(l=>l.qty+' x '+l.name+' ('+money(l.price)+')').join('; ')])];const csv=rows.map(r=>r.map(esc).join(',')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='st-sava-register-sales.csv';a.click();URL.revokeObjectURL(url);setStatus('Sales CSV exported.','good')});
 $('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Permanently clear the sales history stored in this browser?'))return;const previous=sales;sales=[];if(!save()){sales=previous;renderHistory();return}renderHistory();setStatus('Local sales history cleared.')});
+
+function renderDashboard(){
+ const host=$('staffDashboardContent');if(!host)return;host.innerHTML='';
+ const rows=sharedSales.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+ if(!rows.length){host.textContent='No shared sales recorded yet.';return}
+ const groups={};rows.forEach(s=>{const d=new Date(s.created_at),day=d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),dev=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const key=day+'||'+dev;if(!groups[key])groups[key]={day,dev,count:0};groups[key].count++;});
+ const summary=document.createElement('div');summary.className='notice';summary.innerHTML='<strong>Sales by day and device</strong>';
+ Object.values(groups).forEach(g=>{const line=document.createElement('div');line.style.marginTop='7px';line.textContent=g.day+' · '+g.dev+' · '+g.count+' sale'+(g.count===1?'':'s');summary.appendChild(line)});
+ host.appendChild(summary);
+ const heading=document.createElement('h3');heading.textContent='Individual sales';host.appendChild(heading);
+ rows.forEach(s=>{const card=document.createElement('div');card.className='history-item';card.style.display='block';const d=new Date(s.created_at);const device=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const top=document.createElement('strong');top.textContent=d.toLocaleString()+' · '+device;const detail=document.createElement('small');detail.textContent=(s.lines||[]).map(l=>(l.qty||1)+' × '+l.name).join(' · ');detail.style.whiteSpace='normal';card.append(top,detail);host.appendChild(card);});
+}
+$('staffAccessBtn').addEventListener('click',()=>{const panel=$('staffDashboard');panel.hidden=!panel.hidden;if(!panel.hidden){renderDashboard();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
+$('refreshDashboardBtn').addEventListener('click',()=>initialiseSharedRegister().catch(()=>{}));
+$('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your Head Admin details to continue.');});
+
 renderProducts();renderCart();
 })();
 </script></body></html>
