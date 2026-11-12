@@ -1,0 +1,73 @@
+name: Build Church Register Android APK
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - 'index.html'
+      - 'manifest.webmanifest'
+      - 'icons/**'
+      - '.github/workflows/android-apk.yml'
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - name: Prepare Capacitor app
+        run: |
+          mkdir -p www assets
+          cp index.html www/index.html
+          cp manifest.webmanifest www/manifest.webmanifest
+          mkdir -p www/icons
+          cp icons/st-sava-register.svg www/icons/st-sava-register.svg
+          npm init -y
+          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/assets sharp
+          node -e "require('sharp')('icons/st-sava-register.svg').resize(1024,1024).png().toFile('assets/icon-only.png')"
+          cat > capacitor.config.json <<'EOF'
+          {
+            "appId": "com.stsava.churchregister",
+            "appName": "St Sava Church Register",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }
+          EOF
+      - name: Create Android project
+        run: npx cap add android
+      - name: Generate St Sava Android app icons
+        run: npx capacitor-assets generate --android
+      - name: Sync Android app
+        run: npx cap sync android
+      - name: Build installable APK
+        run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+      - name: Upload APK build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: st-sava-church-register-android-apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish latest APK download
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: church-register-android-latest
+          name: St Sava Church Register for Android
+          body: |
+            Installable Android APK for the St Sava Church Register.
+
+            Download church-register.apk below. Android may ask you to allow installation from your browser.
+          files: android/app/build/outputs/apk/debug/app-debug.apk
+          fail_on_unmatched_files: true
+          make_latest: false
