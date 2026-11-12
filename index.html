@@ -191,7 +191,7 @@ $('createStaffForm').addEventListener('submit',async e=>{
 
 $('staffAccessBtn').addEventListener('click',()=>{const panel=$('staffDashboard');panel.hidden=!panel.hidden;if(!panel.hidden){renderDashboard();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
 $('refreshDashboardBtn').addEventListener('click',()=>initialiseSharedRegister().catch(()=>{}));
-$('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your Head Admin details to continue.');});
+$('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your staff details to continue.');});
 
 renderProducts();renderCart();
 })();
