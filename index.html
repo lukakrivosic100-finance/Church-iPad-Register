@@ -10,9 +10,9 @@
 body.locked .app{display:none!important}.staff-gate{display:none;min-height:100vh;align-items:center;justify-content:center;padding:20px;background:var(--bg)}body.locked .staff-gate{display:flex}.staff-card{width:min(420px,100%);padding:28px;background:var(--panel);border:1px solid var(--line);border-radius:20px;text-align:center}.staff-card .mark{margin:0 auto 16px}.staff-card h1{margin:0 0 8px;font-size:1.5rem}.staff-card p{color:var(--muted);line-height:1.5}.staff-card input{width:100%;margin:12px 0;padding:15px;border-radius:12px;border:1px solid var(--line);background:#0d271e;color:var(--cream);font-size:1.5rem;text-align:center;letter-spacing:.35em}.staff-card button{width:100%;min-height:52px;border:0;border-radius:12px;background:var(--gold);color:#1c3025;font-weight:850}.staff-error{min-height:24px;color:var(--red);margin-top:10px}
 </style>
 </head>
-<body class="locked"><section class="staff-gate" id="staffGate" aria-labelledby="staffGateTitle"><div class="staff-card"><div class="mark" aria-hidden="true">☦</div><h1 id="staffGateTitle">Staff Access</h1><p>Enter the staff PIN to open the St Sava Church register.</p><form id="staffPinForm"><label for="staffPin" class="muted">Staff PIN</label><input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="off" aria-label="Four digit staff PIN" required><button type="submit">Unlock register</button></form><div class="staff-error" id="staffPinError" role="alert" aria-live="polite"></div></div></section><div class="app">
-<header><div class="brand"><div class="mark" aria-hidden="true">☦</div><div><h1>St Sava Church West Ealing</h1><p>Product sales register · iPad till</p></div></div><div class="pill">CASH SALES ACTIVE · CARD PAYMENTS OFF</div></header>
-<div class="layout">
+<body class="locked"><section class="staff-gate" id="staffGate" aria-labelledby="staffGateTitle"><div class="staff-card"><div class="mark" aria-hidden="true">☦</div><h1 id="staffGateTitle">Staff Access</h1><p>Enter the staff PIN to open the St Sava Church register.</p><form id="staffPinForm"><label for="staffUsername" class="muted">Staff username</label><input id="staffUsername" type="text" value="headadmin" autocomplete="username" autocapitalize="none" spellcheck="false" required style="letter-spacing:normal;font-size:1rem"><label for="staffPin" class="muted">Head Admin PIN</label><input id="staffPin" type="password" inputmode="numeric" pattern="[0-9]*" maxlength="4" autocomplete="current-password" aria-label="Four digit staff PIN" required><button type="submit">Sign in</button></form><div class="staff-error" id="staffPinError" role="alert" aria-live="polite"></div></div></section><div class="app">
+<header><div class="brand"><div class="mark" aria-hidden="true">☦</div><div><h1>St Sava Church West Ealing</h1><p>Product sales register · iPad till</p></div></div><div style="display:flex;gap:9px;align-items:center;flex-wrap:wrap"><button class="btn secondary" id="staffAccessBtn" type="button" style="min-height:42px">Staff Access</button><button class="btn secondary" id="logoutBtn" type="button" style="min-height:42px">Sign out</button><div class="pill" id="syncBadge">CONNECTING TO SHARED REGISTER</div></div></header>
+<section class="panel" id="staffDashboard" hidden style="margin-bottom:18px"><div class="cart-head"><div><h2>Staff Access</h2><p class="intro" style="margin:4px 0 0">Sales activity by day and device. No money totals are shown here.</p></div><button class="btn secondary" id="refreshDashboardBtn" type="button">Refresh</button></div><div id="staffDashboardContent" class="history-list"></div></section><div class="layout">
 <section class="panel"><h2>Products</h2><p class="intro">Tap a product to add it to the basket. Manage your church product list and prices below.</p>
 <div class="category-row" id="categories"><button class="category active" data-category="All">All products</button><button class="category" data-category="Candles">Candles</button><button class="category" data-category="Books & icons">Books & icons</button><button class="category" data-category="Other">Other</button></div>
 <div class="products" id="products"></div>
@@ -25,25 +25,46 @@ body.locked .app{display:none!important}.staff-gate{display:none;min-height:100v
 <div class="pay-actions"><button class="btn" id="cashBtn" disabled>Cash checkout</button><button class="btn secondary" id="cardBtn" disabled>Card payments off</button></div>
 <p class="status" id="status" role="status" aria-live="polite"></p>
 <div class="notice warning" id="cardNotice"><strong>Card payments are switched off.</strong> This register currently accepts cash payments only.</div>
-<details class="history"><summary>Sales history</summary><p class="muted" style="font-size:.84rem">Cash sales confirmed on this iPad are saved here. Card payments are not available until myPOS is connected.</p><div id="historyList" class="history-list"></div><div class="tools"><button class="btn secondary" id="clearHistoryBtn">Clear local history</button></div></details>
-</aside></div><div class="foot">Staff register · Cash sales are recorded locally on this iPad. Keep this page on the staff iPad and export or back up records regularly.</div></div>
+<details class="history"><summary>Sales history</summary><p class="muted" style="font-size:.84rem">Shared cash sales from signed-in devices. Card payments are not available.</p><div id="historyList" class="history-list"></div><div class="tools"><button class="btn secondary" id="clearHistoryBtn">Clear local history</button></div></details>
+</aside></div><div class="foot">Staff register · Shared register · Signed-in iPad and Android devices use the same product list and sales records.</div></div>
 <div class="modal" id="customPriceModal" role="dialog" aria-modal="true" aria-labelledby="customPriceTitle"><div class="modal-card"><h2 id="customPriceTitle">Add custom amount</h2><p class="muted">Enter a description and any amount for this one-off sale. It will not be added to your product list.</p><label for="customName">Description</label><input id="customName" maxlength="80" value="Custom amount" required><label for="customAmount">Amount (£)</label><input id="customAmount" type="number" min="0.01" max="9999" step="0.01" inputmode="decimal" placeholder="0.00" required><div class="modal-actions"><button type="button" class="btn secondary" id="cancelCustomPrice">Cancel</button><button type="button" class="btn" id="addCustomPrice">Add to basket</button></div></div></div><div class="modal" id="cashModal" role="dialog" aria-modal="true" aria-labelledby="cashTitle"><div class="modal-card"><h2 id="cashTitle">Cash payment</h2><p class="muted">Enter the cash amount received. The register calculates the change.</p><div class="notice"><strong>Total to pay: <span id="cashDue">£0.00</span></strong></div><label for="cashReceived">Cash received (£)</label><input id="cashReceived" type="number" min="0" step="0.01" inputmode="decimal" placeholder="e.g. 10.00"><div class="notice good" style="margin-top:12px"><strong id="changeLabel">Change to give: £0.00</strong><div id="cashShort" class="muted" style="margin-top:5px">Enter the amount received.</div></div><div class="modal-actions"><button type="button" class="btn secondary" id="cancelCash">Cancel</button><button type="button" class="btn" id="confirmCash">Confirm cash sale</button></div><p class="muted" style="font-size:.8rem">Confirming records this cash sale in this iPad’s local sales history.</p></div></div><div class="modal" id="productModal" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-card"><h2 id="modalTitle">Add product</h2><p class="muted">Add or update a product for this register.</p><form id="productForm"><input type="hidden" id="editId"><label for="pName">Product name</label><input id="pName" maxlength="80" required placeholder="e.g. Beeswax candle"><label for="pPrice">Price (£)</label><input id="pPrice" type="number" min="0.01" max="9999" step="0.01" required placeholder="3.00"><label for="pCategory">Category</label><select id="pCategory"><option>Candles</option><option>Books & icons</option><option>Other</option></select><label for="pEmoji">Icon (optional emoji)</label><input id="pEmoji" maxlength="8" placeholder="🕯️"><div class="modal-actions"><button type="button" class="btn secondary" id="cancelModal">Cancel</button><button type="submit" class="btn">Save product</button></div></form><button type="button" class="link-btn" id="deleteProductBtn" style="display:none;margin-top:12px">Delete this product</button></div></div>
 <script>
 (function(){
 'use strict';
-const form=document.getElementById('staffPinForm');
-const pin=document.getElementById('staffPin');
-const error=document.getElementById('staffPinError');
-if(sessionStorage.getItem('ssw-staff-unlocked')==='yes'){document.body.classList.remove('locked');}
-form.addEventListener('submit',function(e){
-e.preventDefault();
-if(pin.value.trim()===String.fromCharCode(50,48,49,54)){
-sessionStorage.setItem('ssw-staff-unlocked','yes');
-document.body.classList.remove('locked');
-error.textContent='';pin.value='';
-}else{error.textContent='Incorrect PIN. Please try again.';pin.value='';pin.focus();}
+const SUPABASE_URL='https://acyjdlrsvtgqqazzxzys.supabase.co';
+const SUPABASE_KEY='sb_publishable_RtCgif0EJYw_LgjgLSEPzQ_xasQeIf4';
+const STAFF_API=SUPABASE_URL+'/functions/v1/staff-pin';
+const REGISTER_API=SUPABASE_URL+'/functions/v1/church-register-sync';
+const form=document.getElementById('staffPinForm'),pin=document.getElementById('staffPin'),error=document.getElementById('staffPinError');
+const username=document.getElementById('staffUsername');
+const tokenKey='ssw-register-session-v1';
+let sessionToken=sessionStorage.getItem(tokenKey)||'';
+let currentStaff=null;
+async function post(url,body,token){
+ const headers={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+ if(token)headers['x-staff-session']=token;
+ const response=await fetch(url,{method:'POST',headers,body:JSON.stringify(body)});
+ let data={};try{data=await response.json()}catch(e){}
+ if(!response.ok||data.ok===false)throw new Error(data.error||'Request failed ('+response.status+').');
+ return data;
+}
+function lockRegister(message){
+ sessionToken='';sessionStorage.removeItem(tokenKey);document.body.classList.add('locked');
+ if(message)error.textContent=message;
+}
+function unlockRegister(staff){
+ currentStaff=staff||null;document.body.classList.remove('locked');error.textContent='';
+}
+form.addEventListener('submit',async function(e){
+ e.preventDefault();const u=username.value.trim().toLowerCase(),p=pin.value.trim();
+ if(!/^headadmin$/.test(u)||!/^\\d{4}$/.test(p)){error.textContent='Enter the Head Admin username and four-digit PIN.';return}
+ const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Signing in…';
+ try{const data=await post(STAFF_API,{action:'login',username:u,pin:p});sessionToken=data.sessionToken;sessionStorage.setItem(tokenKey,sessionToken);unlockRegister(data.staff);pin.value='';await initialiseSharedRegister();}
+ catch(err){error.textContent=err.message||'Sign-in failed. Please try again.';pin.value='';pin.focus();}
+ finally{submit.disabled=false;submit.textContent='Sign in';}
 });
 const starterProducts=[
+
 {id:'candle-small',name:'Small candle',price:1.00,category:'Candles',emoji:'🕯️'},
 {id:'candle-large',name:'Large candle',price:2.00,category:'Candles',emoji:'🕯️'},
 {id:'prayer-candle',name:'Prayer candle',price:3.00,category:'Candles',emoji:'✨'},
@@ -55,6 +76,34 @@ const starterProducts=[
 {id:'other',name:'Other item',price:1.00,category:'Other',emoji:'🛍️'}
 ];
  const defaultProducts=[];
+const DEVICE_ID_KEY='ssw-register-device-id-v1';
+function uuid(){return (crypto.randomUUID?crypto.randomUUID():('xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g,c=>{const r=Math.random()*16|0;return (c==='x'?r:(r&3|8)).toString(16)})));}
+let deviceId=localStorage.getItem(DEVICE_ID_KEY);if(!deviceId){deviceId=uuid();localStorage.setItem(DEVICE_ID_KEY,deviceId)}
+const deviceLabel=/Android/i.test(navigator.userAgent)?'Android':(/iPad|iPhone|iPod/i.test(navigator.userAgent)||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1))?'iPad':'Browser';
+const deviceKey=deviceLabel+'|'+deviceId;
+let sharedSales=[];
+async function registerPost(body){return post(REGISTER_API,body,sessionToken)}
+async function initialiseSharedRegister(){
+ $('syncBadge').textContent='SYNCING…';
+ try{const data=await registerPost({action:'snapshot'});products=(data.products||[]).map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();
+function renderDashboard(){
+ const host=$('staffDashboardContent');if(!host)return;host.innerHTML='';
+ const rows=sharedSales.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+ if(!rows.length){host.textContent='No shared sales recorded yet.';return}
+ const groups={};rows.forEach(s=>{const d=new Date(s.created_at),day=d.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'}),dev=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const key=day+'||'+dev;if(!groups[key])groups[key]={day,dev,count:0};groups[key].count++;});
+ const summary=document.createElement('div');summary.className='notice';summary.innerHTML='<strong>Sales by day and device</strong>';
+ Object.values(groups).forEach(g=>{const line=document.createElement('div');line.style.marginTop='7px';line.textContent=g.day+' · '+g.dev+' · '+g.count+' sale'+(g.count===1?'':'s');summary.appendChild(line)});
+ host.appendChild(summary);
+ const heading=document.createElement('h3');heading.textContent='Individual sales';host.appendChild(heading);
+ rows.forEach(s=>{const card=document.createElement('div');card.className='history-item';card.style.display='block';const d=new Date(s.created_at);const device=String(s.device_id||'Unknown device').split('|')[0]||'Unknown device';const top=document.createElement('strong');top.textContent=d.toLocaleString()+' · '+device;const detail=document.createElement('small');detail.textContent=(s.lines||[]).map(l=>(l.qty||1)+' × '+l.name).join(' · ');detail.style.whiteSpace='normal';card.append(top,detail);host.appendChild(card);});
+}
+$('staffAccessBtn').addEventListener('click',()=>{const panel=$('staffDashboard');panel.hidden=!panel.hidden;if(!panel.hidden){renderDashboard();panel.scrollIntoView({behavior:'smooth',block:'start'});}});
+$('refreshDashboardBtn').addEventListener('click',()=>initialiseSharedRegister().catch(()=>{}));
+$('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your Head Admin details to continue.');});
+\nrenderProducts();renderCart();renderDashboard();$('syncBadge').textContent='SHARED · '+deviceLabel;$('syncBadge').style.color='var(--green)';}
+ catch(err){$('syncBadge').textContent='SYNC ERROR';$('syncBadge').style.color='var(--red)';setStatus('Shared register could not sync: '+err.message+' · Do not record a sale until connection is restored.','error');if(/session|sign in|expired/i.test(err.message))lockRegister('Your staff session expired. Please sign in again.');throw err;}
+}
+
 const $=id=>document.getElementById(id);const money=n=>'£'+Number(n).toFixed(2);
 function load(key,fallback){try{const x=JSON.parse(localStorage.getItem(key));return x===null?fallback:x}catch(e){return fallback}}
 let products=load('ssw-register-products-v1',defaultProducts),cart=[],category='All',sales=load('ssw-register-sales-v1',[]);
@@ -66,7 +115,7 @@ function renderProducts(){const host=$('products');host.innerHTML='';if(!product
 function renderCart(){const host=$('cartItems');host.innerHTML='';if(!cart.length)host.innerHTML='<div class="empty">Your basket is empty.<br>Tap a product to begin.</div>';cart.forEach(line=>{const p=line.custom?{name:line.name,price:line.price}:products.find(x=>x.id===line.id);if(!p)return;const row=document.createElement('div');row.className='cart-line';const info=document.createElement('div');const title=document.createElement('strong');title.textContent=p.name;const detail=document.createElement('small');detail.textContent=money(p.price)+' each';const controls=document.createElement('div');controls.className='line-controls';[['−',-1],[''+line.qty,0],['+',1]].forEach(([label,delta])=>{const b=document.createElement('button');b.className='qty';b.type='button';b.textContent=label;b.setAttribute('aria-label',delta===-1?'Remove one '+p.name:delta===1?'Add one '+p.name:p.name+' quantity');b.addEventListener('click',()=>changeQty(line.id,delta));controls.appendChild(b)});info.append(title,detail,controls);const amount=document.createElement('div');amount.className='line-total';amount.textContent=money(p.price*line.qty);row.append(info,amount);host.appendChild(row)});const total=cart.reduce((sum,l)=>{const p=l.custom?{price:l.price}:products.find(x=>x.id===l.id);return sum+(p?p.price*l.qty:0)},0);$('total').textContent=money(total);$('cashBtn').disabled=!cart.length;$('cardBtn').disabled=true;renderHistory()}
 function add(id){const line=cart.find(x=>x.id===id);if(line)line.qty++;else cart.push({id,qty:1});setStatus('Product added to basket.');renderCart()}
 function changeQty(id,delta){const line=cart.find(x=>x.id===id);if(!line)return;if(delta===0)return;line.qty+=delta;if(line.qty<=0)cart=cart.filter(x=>x.id!==id);renderCart()}
-function saleTotal(){return Math.round(cart.reduce((sum,l)=>{const p=products.find(x=>x.id===l.id);return sum+(p?p.price*l.qty:0)},0)*100)/100}
+function saleTotal(){return Math.round(cart.reduce((sum,l)=>{const p=l.custom?l:products.find(x=>x.id===l.id);return sum+(p?p.price*l.qty:0)},0)*100)/100}
 function recordSale(method){if(!cart.length)return;const total=saleTotal();const lines=cart.map(l=>{const p=l.custom?{name:l.name,price:l.price}:products.find(x=>x.id===l.id);return {name:p.name,price:p.price,qty:l.qty}});const sale={id:'SSW-'+Date.now().toString(36).toUpperCase(),at:new Date().toISOString(),method,total,lines};sales.unshift(sale);sales=sales.slice(0,500);save();cart=[];renderCart();setStatus('CASH SALE RECORDED · '+sale.id+' · '+money(total),'good');}
 function renderHistory(){const host=$('historyList');if(!host)return;host.innerHTML='';if(!sales.length){host.textContent='No cash sales recorded yet.';return}sales.slice(0,12).forEach(s=>{const d=document.createElement('div');d.className='history-item';const left=document.createElement('div');left.textContent=s.id;const small=document.createElement('small');small.textContent=new Date(s.at).toLocaleString()+' · '+s.method+(s.method==='Cash'&&Number.isFinite(s.cashReceived)?' · Received '+money(s.cashReceived)+' · Change '+money(s.change||0):'');left.appendChild(small);const right=document.createElement('strong');right.textContent=money(s.total);d.append(left,right);host.appendChild(d)})}
 function openProduct(id){const p=products.find(x=>x.id===id);$('editId').value=p?p.id:'';$('pName').value=p?p.name:'';$('pPrice').value=p?p.price:'';$('pCategory').value=p?p.category:'Other';$('pEmoji').value=p?p.emoji:'';$('modalTitle').textContent=p?'Edit product':'Add product';$('deleteProductBtn').style.display=p?'inline-block':'none';$('productModal').classList.add('open');$('pName').focus()}
@@ -79,14 +128,14 @@ $('cancelCustomPrice').addEventListener('click',closeCustomPrice);
 $('customPriceModal').addEventListener('click',e=>{if(e.target===$('customPriceModal'))closeCustomPrice()});
 $('addCustomPrice').addEventListener('click',()=>{const name=$('customName').value.trim()||'Custom amount';const price=Math.round(Number($('customAmount').value)*100)/100;if(!Number.isFinite(price)||price<=0||price>9999){$('customAmount').focus();return}cart.push({id:'custom-'+Date.now(),name,price,qty:1,custom:true});closeCustomPrice();renderCart();setStatus(name+' added at '+money(price)+'.','good')});
 $('cancelModal').addEventListener('click',closeModal);$('productModal').addEventListener('click',e=>{if(e.target===$('productModal'))closeModal()});
-$('productForm').addEventListener('submit',e=>{e.preventDefault();const id=$('editId').value||('p-'+Date.now());const p={id,name:$('pName').value.trim(),price:Math.round(Number($('pPrice').value)*100)/100,category:$('pCategory').value,emoji:$('pEmoji').value.trim()||'🛍️'};if(!p.name||!Number.isFinite(p.price)||p.price<=0){return}const previous=products.slice();const i=products.findIndex(x=>x.id===id);if(i>=0)products[i]=p;else products.push(p);if(!save()){products=previous;save();renderProducts();renderCart();return}closeModal();renderProducts();renderCart();setStatus('Product saved on this iPad.','good')});
-$('deleteProductBtn').addEventListener('click',()=>{const id=$('editId').value;if(!id)return;if(cart.some(x=>x.id===id)){setStatus('Remove this product from the basket before deleting it.','error');return}const previous=products.slice();products=products.filter(p=>p.id!==id);if(!save()){products=previous;renderProducts();renderCart();return}closeModal();renderProducts();renderCart();setStatus('Product deleted from this iPad.')});
+$('productForm').addEventListener('submit',async e=>{e.preventDefault();const id=$('editId').value||('p-'+Date.now());const p={id,name:$('pName').value.trim(),price:Math.round(Number($('pPrice').value)*100)/100,category:$('pCategory').value,emoji:$('pEmoji').value.trim()||'🛍️'};if(!p.name||!Number.isFinite(p.price)||p.price<=0){return}const previous=products.slice();const i=products.findIndex(x=>x.id===id);if(i>=0)products[i]=p;else products.push(p);try{await registerPost({action:'save_product',product:p});save();closeModal();renderProducts();renderCart();setStatus('Product saved to the shared register.','good');}catch(err){products=previous;renderProducts();renderCart();setStatus('Product not synced: '+err.message,'error')}});
+$('deleteProductBtn').addEventListener('click',async()=>{const id=$('editId').value;if(!id)return;if(cart.some(x=>x.id===id)){setStatus('Remove this product from the basket before deleting it.','error');return}const previous=products.slice();products=products.filter(p=>p.id!==id);try{await registerPost({action:'delete_product',id});save();closeModal();renderProducts();renderCart();setStatus('Product removed from the shared register.','good');}catch(err){products=previous;renderProducts();renderCart();setStatus('Product was not removed: '+err.message,'error')}});
 $('clearBtn').addEventListener('click',()=>{cart=[];renderCart();setStatus('Basket cleared.')});
 function closeCash(){ $('cashModal').classList.remove('open'); }
 function updateChange(){const due=saleTotal(),received=Math.round(Number($('cashReceived').value||0)*100)/100,diff=Math.round((received-due)*100)/100;$('changeLabel').textContent='Change to give: '+money(Math.max(0,diff));$('cashShort').textContent=received<due?'Still needed: '+money(due-received):received===0?'Enter the amount received.':'Exact cash or sufficient cash received.';$('confirmCash').disabled=!Number.isFinite(received)||received<due||received<=0;}
 $('cashBtn').addEventListener('click',()=>{if(!cart.length)return;$('cashDue').textContent=money(saleTotal());$('cashReceived').value='';$('changeLabel').textContent='Change to give: £0.00';$('cashShort').textContent='Enter the amount received.';$('confirmCash').disabled=true;$('cashModal').classList.add('open');$('cashReceived').focus()});
 $('cashReceived').addEventListener('input',updateChange);$('cancelCash').addEventListener('click',closeCash);$('cashModal').addEventListener('click',e=>{if(e.target===$('cashModal'))closeCash()});
-$('confirmCash').addEventListener('click',()=>{if(!cart.length)return;updateChange();if($('confirmCash').disabled)return;const due=saleTotal(),received=Math.round(Number($('cashReceived').value)*100)/100,change=Math.round((received-due)*100)/100;const lines=cart.map(l=>{const p=products.find(x=>x.id===l.id);return {name:p.name,price:p.price,qty:l.qty}});const sale={id:'SSW-'+Date.now().toString(36).toUpperCase(),at:new Date().toISOString(),method:'Cash',total:due,cashReceived:received,change,lines};sales.unshift(sale);sales=sales.slice(0,500);if(!save()){sales.shift();renderHistory();return}closeCash();cart=[];renderCart();setStatus('CASH SALE RECORDED · Received '+money(received)+' · Change to give '+money(change)+'. Sale '+sale.id,'good');});
+$('confirmCash').addEventListener('click',async()=>{if(!cart.length)return;updateChange();if($('confirmCash').disabled)return;const due=saleTotal(),received=Math.round(Number($('cashReceived').value)*100)/100,change=Math.round((received-due)*100)/100;const lines=cart.map(l=>{const p=l.custom?l:products.find(x=>x.id===l.id);return {name:p.name,price:p.price,qty:l.qty}});const sale={id:'SSW-'+uuid(),at:new Date().toISOString(),method:'Cash',total:due,cashReceived:received,change,lines,device_id:deviceKey};$('confirmCash').disabled=true;$('confirmCash').textContent='Saving sale…';try{await registerPost({action:'record_sale',sale:{id:sale.id,total:due,cash_received:received,change,lines,device_id:deviceKey}});sales.unshift(sale);sales=sales.slice(0,500);save();closeCash();cart=[];renderCart();await initialiseSharedRegister();setStatus('Cash sale saved to the shared register · '+sale.id,'good');}catch(err){setStatus('Sale NOT saved to shared register: '+err.message+'. Keep the basket and retry.','error');}finally{$('confirmCash').disabled=false;$('confirmCash').textContent='Confirm cash sale';}});
 $('exportBtn').addEventListener('click',()=>{if(!sales.length){setStatus('No recorded sales to export yet.');return}const esc=v=>'"'+String(v).replace(/"/g,'""')+'"';const rows=[['Sale ID','Date/time','Payment method','Total GBP','Cash received GBP','Change GBP','Items'],...sales.map(s=>[s.id,s.at,s.method,s.total,s.cashReceived??'',s.change??'',s.lines.map(l=>l.qty+' x '+l.name+' ('+money(l.price)+')').join('; ')])];const csv=rows.map(r=>r.map(esc).join(',')).join('\r\n');const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='st-sava-register-sales.csv';a.click();URL.revokeObjectURL(url);setStatus('Sales CSV exported.','good')});
 $('clearHistoryBtn').addEventListener('click',()=>{if(!confirm('Permanently clear the sales history stored in this browser?'))return;const previous=sales;sales=[];if(!save()){sales=previous;renderHistory();return}renderHistory();setStatus('Local sales history cleared.')});
 renderProducts();renderCart();
