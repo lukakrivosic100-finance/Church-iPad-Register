@@ -10,6 +10,7 @@ The iPad web app and Android APK connect to the same shared register:
 - Products and product changes sync between signed-in devices.
 - Confirmed cash sales are saved to the shared database.
 - The Staff Access dashboard shows sales counts by day and device, plus each sale's date/time, device, items, and quantities.
+- Head Admin has a **Manage Staff** button to create staff accounts and view usernames, display names, roles, and active status. Staff PINs are securely hashed and are never displayed.
 - The Staff Access dashboard does **not** display money totals or earnings.
 - The dashboard refreshes periodically while the register is open; use its Refresh button for an immediate update.
 
