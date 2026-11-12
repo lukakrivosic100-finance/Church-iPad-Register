@@ -85,7 +85,7 @@ let sharedSales=[],pendingSale=null;
 async function registerPost(body){return post(REGISTER_API,body,sessionToken)}
 async function initialiseSharedRegister(){
  $('syncBadge').textContent='SYNCING…';
- try{const data=await registerPost({action:'snapshot'});products=(data.products||[]).map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();
+ try{let data=await registerPost({action:'snapshot'});let remoteProducts=data.products||[];if(!remoteProducts.length&&products.length){for(const p of products)await registerPost({action:'save_product',product:p});data=await registerPost({action:'snapshot'});remoteProducts=data.products||[];}products=remoteProducts.map(p=>({id:p.id,name:p.name,price:Number(p.price),category:p.category,emoji:p.emoji||'🛍️'}));sharedSales=data.sales||[];sales=sharedSales.map(s=>({id:s.id,at:s.created_at,method:s.method,total:Number(s.total),cashReceived:Number(s.cash_received),change:Number(s.change),lines:s.lines||[],device_id:s.device_id}));save();
 function renderDashboard(){
  const host=$('staffDashboardContent');if(!host)return;host.innerHTML='';
  const rows=sharedSales.slice().sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
