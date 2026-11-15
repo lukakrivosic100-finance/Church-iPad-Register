@@ -148,7 +148,7 @@ async function closeBarcodeScanner(){
  $('barcodeScannerModal').classList.remove('open');
  await stopBarcodeScanner();
 }
-$('scanBasketBarcodeBtn').addEventListener('click',()=>{barcodeScanMode='basket';$('barcodeScannerModal').classList.add('open');$('barcodeScannerStatus').textContent='Preparing to scan a product into the basket…';$('scanBarcodeBtn').click();});
+$('scanBasketBarcodeBtn').addEventListener('click',()=>{$('barcodeScannerModal').classList.add('open');$('barcodeScannerStatus').textContent='Preparing to scan a product into the basket…';$('scanBarcodeBtn').click();barcodeScanMode='basket';});
 $('scanBarcodeBtn').addEventListener('click',async()=>{
  barcodeScanMode='product';
  if(barcodeScannerStarting)return;
