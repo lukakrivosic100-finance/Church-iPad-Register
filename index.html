@@ -40,6 +40,7 @@ body.locked .app{display:none!important}.staff-gate{display:none;min-height:100v
 <div class="notice"><strong>Product setup:</strong> Add your church’s products and correct prices before taking sales. You can edit or remove products at any time.</div>
 </section>
 <aside class="panel cart-panel"><div class="cart-head"><div><h2>Current sale</h2><p class="intro" style="margin:4px 0 0">Basket and checkout</p></div><button class="link-btn" id="clearBtn">Clear basket</button></div>\n<button class="btn" id="customPriceBtn" style="width:100%;margin-top:12px">＋ Add custom amount</button>
+<button class="btn secondary" id="scanBasketBarcodeBtn" type="button" style="width:100%;margin-top:9px">▦ Scan barcode into basket</button>
 <div class="cart-items" id="cartItems"><div class="empty">Your basket is empty.<br>Tap a product to begin.</div></div>
 <div class="subtotal"><div><span>Total to pay</span><div class="muted" style="font-size:.8rem">GBP · VAT not configured</div></div><div class="total" id="total">£0.00</div></div>
 <div class="pay-actions"><button class="btn" id="cashBtn" disabled>Cash checkout</button><button class="btn secondary" id="cardBtn" disabled>Card payments off</button></div>
@@ -126,7 +127,7 @@ function recordSale(method){if(!cart.length)return;const total=saleTotal();const
 function renderHistory(){const host=$('historyList');if(!host)return;host.innerHTML='';if(!sales.length){host.textContent='No cash sales recorded yet.';return}sales.slice(0,12).forEach(s=>{const d=document.createElement('div');d.className='history-item';const left=document.createElement('div');left.textContent=s.id;const small=document.createElement('small');small.textContent=new Date(s.at).toLocaleString()+' · '+s.method+(s.method==='Cash'&&Number.isFinite(s.cashReceived)?' · Received '+money(s.cashReceived)+' · Change '+money(s.change||0):'');left.appendChild(small);const right=document.createElement('strong');right.textContent=money(s.total);d.append(left,right);host.appendChild(d)})}
 function openProduct(id){const p=products.find(x=>x.id===id);$('editId').value=p?p.id:'';$('pName').value=p?p.name:'';$('pPrice').value=p?p.price:'';$('pCategory').value=p?p.category:'Other';$('pEmoji').value=p?p.emoji:'';$('pBarcode').value=p?p.barcode||'':'';$('modalTitle').textContent=p?'Edit product':'Add product';$('saveProductBtn').textContent=p?'Save changes':'＋ Add product';$('deleteProductBtn').style.display=p?'inline-block':'none';$('productModal').classList.add('open');$('pName').focus()}
 function closeModal(){$('productModal').classList.remove('open')}
-let barcodeScanner=null,barcodeScannerStarting=false,barcodeLibraryPromise=null;
+let barcodeScanner=null,barcodeScannerStarting=false,barcodeLibraryPromise=null,barcodeScanMode='product';
 function loadBarcodeLibrary(){
  if(window.Html5Qrcode)return Promise.resolve();
  if(barcodeLibraryPromise)return barcodeLibraryPromise;
@@ -147,7 +148,9 @@ async function closeBarcodeScanner(){
  $('barcodeScannerModal').classList.remove('open');
  await stopBarcodeScanner();
 }
+$('scanBasketBarcodeBtn').addEventListener('click',()=>{barcodeScanMode='basket';$('barcodeScannerModal').classList.add('open');$('barcodeScannerStatus').textContent='Preparing to scan a product into the basket…';$('scanBarcodeBtn').click();});
 $('scanBarcodeBtn').addEventListener('click',async()=>{
+ barcodeScanMode='product';
  if(barcodeScannerStarting)return;
  barcodeScannerStarting=true;
  $('barcodeScannerModal').classList.add('open');
@@ -161,7 +164,19 @@ $('scanBarcodeBtn').addEventListener('click',async()=>{
   await scanner.start({facingMode:'environment'},{fps:10,qrbox:{width:280,height:150},aspectRatio:1.777},
    async decodedText=>{
     if(!barcodeScanner)return;
-    $('pBarcode').value=String(decodedText).trim().slice(0,120);
+    const scanned=String(decodedText).trim().slice(0,120);
+    if(barcodeScanMode==='basket'){
+     const match=products.find(p=>String(p.barcode||'').trim()===scanned);
+     if(!match){
+      $('barcodeScannerStatus').textContent='No product matches barcode '+scanned+'. Add this barcode to a product first, then scan again.';
+      return;
+     }
+     await closeBarcodeScanner();
+     add(match.id);
+     setStatus(match.name+' scanned and added to the basket.','good');
+     return;
+    }
+    $('pBarcode').value=scanned;
     $('barcodeScannerStatus').textContent='Barcode detected.';
     await closeBarcodeScanner();
     $('pBarcode').focus();
