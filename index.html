@@ -249,6 +249,7 @@ $('productForm').addEventListener('submit',async e=>{
  $('editId').value=id;
  const p={id,name:$('pName').value.trim(),price:Math.round(Number($('pPrice').value)*100)/100,category:$('pCategory').value,emoji:$('pEmoji').value.trim(),barcode:$('pBarcode').value.trim()};
  if(!p.name||!Number.isFinite(p.price)||p.price<=0)return;
+ const editing=products.some(x=>x.id===id);
  const previous=products.slice();
  const i=products.findIndex(x=>x.id===id);
  if(i>=0)products[i]=p;else products.push(p);
@@ -264,7 +265,7 @@ $('productForm').addEventListener('submit',async e=>{
   setStatus('Product saved to the shared register. Tap Done to close.','good');
  }catch(err){
   products=previous;renderProducts();renderCart();
-  saveButton.disabled=false;saveButton.textContent='Save changes';
+  saveButton.disabled=false;saveButton.textContent=editing?'Save changes':'＋ Add product';
   setStatus('Product not synced: '+err.message,'error');
  }finally{productSaving=false;}
 });
