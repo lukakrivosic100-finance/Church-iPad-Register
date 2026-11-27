@@ -59,7 +59,7 @@ const REGISTER_API=SUPABASE_URL+'/functions/v1/church-register-sync';
 const form=document.getElementById('staffPinForm'),pin=document.getElementById('staffPin'),error=document.getElementById('staffPinError');
 const username=document.getElementById('staffUsername');
 const tokenKey='ssw-register-session-v1';
-let sessionToken=sessionStorage.getItem(tokenKey)||'';
+let sessionToken=localStorage.getItem(tokenKey)||'';
 let currentStaff=null;
 async function post(url,body,token){
  const headers={'Content-Type':'application/json','apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
@@ -70,7 +70,7 @@ async function post(url,body,token){
  return data;
 }
 function lockRegister(message){
- sessionToken='';currentStaff=null;sessionStorage.removeItem(tokenKey);document.body.classList.add('locked');document.getElementById('manageStaffBtn').hidden=true;document.getElementById('staffManagement').hidden=true;
+ sessionToken='';currentStaff=null;localStorage.removeItem(tokenKey);document.body.classList.add('locked');document.getElementById('manageStaffBtn').hidden=true;document.getElementById('staffManagement').hidden=true;
  if(message)error.textContent=message;
 }
 function unlockRegister(staff){
@@ -80,7 +80,7 @@ form.addEventListener('submit',async function(e){
  e.preventDefault();const u=username.value.trim().toLowerCase(),p=pin.value.trim();
  if(!/^[a-z][a-z0-9._-]{2,31}$/.test(u)||!/^[0-9]{4}$/.test(p)){error.textContent='Enter your staff username and four-digit PIN.';return}
  const submit=form.querySelector('button[type="submit"]');submit.disabled=true;submit.textContent='Signing in…';
- try{const data=await post(STAFF_API,{action:'login',username:u,pin:p});sessionToken=data.sessionToken;sessionStorage.setItem(tokenKey,sessionToken);unlockRegister(data.staff);pin.value='';await initialiseSharedRegister();}
+ try{const data=await post(STAFF_API,{action:'login',username:u,pin:p});sessionToken=data.sessionToken;localStorage.setItem(tokenKey,sessionToken);unlockRegister(data.staff);pin.value='';await initialiseSharedRegister();}
  catch(err){error.textContent=err.message||'Sign-in failed. Please try again.';pin.value='';pin.focus();}
  finally{submit.disabled=false;submit.textContent='Sign in';}
 });
@@ -357,5 +357,10 @@ $('earningsDateFilter').addEventListener('change',renderDashboard);$('clearEarni
 $('logoutBtn').addEventListener('click',async()=>{try{if(sessionToken)await post(STAFF_API,{action:'logout'},sessionToken)}catch(e){}lockRegister('Signed out. Enter your staff details to continue.');});
 
 renderProducts();renderCart();
+if(sessionToken){
+ post(STAFF_API,{action:'session'},sessionToken)
+  .then(data=>{unlockRegister(data.staff);return initialiseSharedRegister();})
+  .catch(()=>lockRegister('Your saved session is no longer valid. Please sign in again.'));
+}
 })();
 </script></body></html>
